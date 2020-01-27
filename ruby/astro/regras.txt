@@ -1,0 +1,27 @@
+TRANSITING
+PROGRESSED
+ECLIPSE
+DIRECTED 
+
+Entering
+In Orb
+Exact
+Leaving
+Datas (void or course, stationary, eclipse, entering)
+
+In Orb
+In Orb (Exact(several))
+In Orb (Exact(several)) Leaving
+In Orb (Exact(several)) Leaving Entering ...
+Entering
+Entering (Exact(several))
+Entering (Exact(several)) Leaving
+Entering (Exact(several)) Leaving Entering ...
+
+
+This aspect is not included in this set of interpretations.
+No description (transiting, void, parallel)
+No text available for this topic.
+
+
+^(([0-9])|([0-2][0-9])|([3][0-1]))\/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\/\d{4}$
