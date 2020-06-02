@@ -1,18 +1,0 @@
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:icalendar-rubyCALSCALE:GREGORIAN
-METHOD:PUBLISH
-BEGIN:VEVENT
-DTSTAMP:20200126T181555Z
-UID:a2857a4f-20ea-4adf-8a89-cd75050d9977
-DTSTART:20200101T000000
-DTEND:20200105T000000
-CLASS:PRIVATE
-DESCRIPTION:This is a good time for bountiful relationships. You are confid
- ent\, warm and fun-loving and this rubs off on all those around you. For t
- his reason you will find that your social life and relationships in genera
- l benefit\, and opportunities to meet new people and travel may abound.
-SUMMARY:TRANSITING JUPITER TRINE DIRECTED ASCENDANT (9th House to 5th House
- )
-END:VEVENT
-END:VCALENDAR

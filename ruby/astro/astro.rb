@@ -4,7 +4,17 @@ require "date"
 
 year = 2020
 
+sql_content.encode!("UTF-16", "UTF-8", :invalid => :replace, :replace => "")
+sql_content.encode!("UTF-8", "UTF-16")
+sql_content.force_encoding("UTF-8")
+
 data = File.readlines("dynamic.txt") #cada linha do texto que nao esteja vazia e colocada em uma celula do array
+
+#if !data.valid_encoding?
+#s = dataencode("UTF-16be", :invalid => :replace, :replace => "?").encode("UTF-8")
+
+#@file = IO.read(file).force_encoding("ISO-8859-1").encode("utf-8", replace: nil)
+
 data.map! { |line| line.gsub(/Jan/, "01") } #invoke on each line gsub
 data.map! { |line| line.gsub(/Feb/, "02") }
 data.map! { |line| line.gsub(/Mar/, "03") }
@@ -19,8 +29,9 @@ data.map! { |line| line.gsub(/Nov/, "11") }
 data.map! { |line| line.gsub(/Dec/, "12") }
 data.map! { |line| line.gsub(year.to_s + "Entering", year.to_s + ", Entering") }
 data.map! { |line| line.gsub(/\n/, "") }
-#data.each_with_index { |val, index| puts "#{val} => #{index}" }
-File.open("test.txt", "w+") { |f| f.puts data } #output data to other file
+#end
+
+#File.open("test.txt", "w+") { |f| f.puts data } #output data to other file
 
 index = 0
 
@@ -28,35 +39,12 @@ index = 0
 cal = Icalendar::Calendar.new
 
 while index < data.length
-  #puts index
   if data[index].start_with?("TRANSITING", "PROGRESSED", "ECLIPSE", "DIRECTED")
     evt = OpenStruct.new
-    #arrayDate = Array.new
-    #incluir no calendario
-    #puts data[index]
+
     evt.summary = data[index]
 
     index += 1
-    #while data[index] != nil
-    # if data[index].start_with?("In Orb", "Entering")
-    #   if data[index].start_with?("In Orb")
-    #     # setar no calendario Janeiro 2020
-    #     data[index].slice!("In Orb ")
-    #     #puts data[index]
-    #   else #Entering
-    #     # setar no calendario data especificada
-    #     data[index].slice!("Entering ")
-    #     #puts data[index]
-    #   end
-    # else
-    #   # data
-    # end
-
-    #puts data[index]
-    #inorbArray = data[index].enum_for(:scan, /(?=In\sOrb\s)/).map { Regexp.last_match.offset(0).first }
-    #enteringArray = data[index].enum_for(:scan, /(?=Entering\s)/).map { Regexp.last_match.offset(0).first }
-    #leavingArray = data[index].enum_for(:scan, /(?=Leaving\s)/).map { Regexp.last_match.offset(0).first }
-    # puts "enteringArray: " + enteringArray.to_s + " inorbArray: " + inorbArray.to_s + " leavingArray: " + leavingArray.to_s
 
     res = data[index].split(", ")
     #puts res
@@ -91,32 +79,6 @@ while index < data.length
       #puts "endDate:" + endDate
     end
 
-    # iter = inorbArray.length + enteringArray.length
-    # if iter > 0
-    #   leavingIdx = 0
-    #   while iter > 0
-    #     if data[index].start_with?("In Orb")
-    #       sizeInOrb = "In Orb ".length
-    #       slicedStartDate = data[sizeInOrb..data[index].length - 1] #.slice(/\d{2}\s\d{1,2}\s\d{4}/)
-    #       if leavingArray == nil
-    #         slicedEndDate = "12 31" + year
-    #       else
-    #         slicedEndDate = data[leavingArray[leavingIdx] + "Leaving ".length..data[index].length - 1] #.slice(/\d{2}\s\d{1,2}\s\d{4}/)
-    #         leavingIdx += 1
-    #       end
-    #     else #Entering
-    #       for enteringIdx in 0..enteringArray.length
-    #         slicedStartDate = data[enteringArray[enteringIdx] + "Entering ".length..data[index].length - 1].slice(/\d{2}\s\d{1,2}\s\d{4}/)
-    #         slicedEndDate = data[leavingArray[leavingIdx] + "Leaving ".length..data[index].length - 1].slice(/\d{2}\s\d{1,2}\s\d{4}/)
-    #         leavingIdx += 1
-    #       end
-    #       iter -= 1
-    #     end
-    #   end
-    # else
-    #   #only dates
-    # end
-
     index += 1
 
     description = data[index]
@@ -127,67 +89,41 @@ while index < data.length
     if description.start_with?("This aspect is not included") || description.start_with?("No text available")
       description = ""
     else
-      #puts description
+      evt.description = description
+
+      startDateStr = startDate.split("|")
+      #puts "startDateStr:" + startDateStr.to_s
+      endDateStr = endDate.split("|")
+      #puts "endDateStr:" + endDateStr.to_s
+
+      j = 0
+      while j < startDateStr.length
+        event = Icalendar::Event.new
+        event.ip_class = "PRIVATE"
+        event.summary = evt.summary
+        puts evt.summary
+        event.description = evt.description
+
+        monthST = startDateStr[j].slice!(/\d{2}/)
+        dayST = startDateStr[j].slice!(/\d{1,2}\s/)
+        yearST = startDateStr[j].slice!(/\d{4}/)
+        event.dtstart = Date.strptime(yearST + "/" + monthST + "/" + dayST, "%Y/%m/%d")
+        puts "START:" + event.dtstart.to_s
+
+        monthE = endDateStr[j].slice!(/\d{2}/)
+        dayE = endDateStr[j].slice!(/\d{1,2}\s/)
+        yearE = endDateStr[j].slice!(/\d{4}/)
+        event.dtend = Date.strptime(yearE + "/" + monthE + "/" + dayE, "%Y/%m/%d")
+        puts "END:" + event.dtend.to_s
+
+        puts evt.description
+
+        cal.add_event(event)
+        j += 1
+      end
     end
-
-    evt.description = description
-
-    #   #(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\s+\d{4}
-    #   month = data[index].slice!(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s/)
-    #   puts month
-    #   day = data[index].slice!(/\d{1,2}\s/)
-    #   puts day
-    #   year = data[index].slice!(/\d{4}(\s)?/)
-    #   puts year
-    #   data[index].slice!(", ")
-    #   leavingidx = data[index].index("Leaving")
-    #   if leavingidx != nil
-    #     data[index].slice!(0..leavingidx - 1)
-    #     data[index].slice!("Leaving ")
-    #   end
-    # puts data[index]
-    #Procurar o leaving
-    #end
-
-    startDateStr = startDate.split("|")
-    #puts "startDateStr:" + startDateStr.to_s
-    endDateStr = endDate.split("|")
-    #puts "endDateStr:" + endDateStr.to_s
-
-    j = 0
-    while j < startDateStr.length
-      event = Icalendar::Event.new
-      event.ip_class = "PRIVATE"
-      event.summary = evt.summary
-      puts evt.summary
-      event.description = evt.description
-
-      monthST = startDateStr[j].slice!(/\d{2}/)
-      dayST = startDateStr[j].slice!(/\d{1,2}\s/)
-      yearST = startDateStr[j].slice!(/\d{4}/)
-      event.dtstart = Date.strptime(yearST + "/" + monthST + "/" + dayST, "%Y/%m/%d")
-      puts "START:" + event.dtstart.to_s
-
-      monthE = endDateStr[j].slice!(/\d{2}/)
-      dayE = endDateStr[j].slice!(/\d{1,2}\s/)
-      yearE = endDateStr[j].slice!(/\d{4}/)
-      event.dtend = Date.strptime(yearE + "/" + monthE + "/" + dayE, "%Y/%m/%d")
-      puts "END:" + event.dtend.to_s
-
-      puts evt.description
-
-      cal.add_event(event)
-      j += 1
-    end
-    # aqui precisa percorrer um array
-
-    #event.dtstart = evt.dtstart
-    #event.dtend = evt.dtend
-
   end
   index += 2
-  #index = data.length
-
 end
 
 cal.publish
