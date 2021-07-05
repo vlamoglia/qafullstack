@@ -21,3 +21,5 @@ Capybara.configure do |config|
   config.app_host = "https://zattoo2.testrail.net"
   config.default_max_wait_time = 5
 end
+
+Capybara.exact = true
