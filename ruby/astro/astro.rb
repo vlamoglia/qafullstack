@@ -1,12 +1,23 @@
 require "icalendar"
 require "ostruct"
 require "date"
+require "highline/import"
 
-year = 2020
+def get_year()
+  prompt = "Enter the transit starting year: "
+  ask(prompt) { |q| q.echo = true }
+end
 
-sql_content.encode!("UTF-16", "UTF-8", :invalid => :replace, :replace => "")
-sql_content.encode!("UTF-8", "UTF-16")
-sql_content.force_encoding("UTF-8")
+def set_year()
+  year = Time.now.year
+  loop do
+    year = get_year().to_i
+    break if year.is_a? Integer
+  end
+  return year
+end
+
+year = set_year()
 
 data = File.readlines("dynamic.txt") #cada linha do texto que nao esteja vazia e colocada em uma celula do array
 
